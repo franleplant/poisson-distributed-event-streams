@@ -20,4 +20,4 @@ node index.js
 ### Parameters
 
 - `MAX_WORKERS`: the amount of "streams" or "workers" (use to simulate load in the system)
-- `EVENTS_PER_MINUTE`: this is the "rate" or the inverse of the Poisson mean that we use to generate random event times.
+- `EVENTS_PER_MINUTE`: this is the "rate" or the mean of the Poisson distribution that we use to generate random event times.

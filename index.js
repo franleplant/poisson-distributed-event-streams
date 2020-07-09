@@ -8,7 +8,11 @@ const EVENTS_PER_MINUTE = 1
 // differentiate workers
 class Logger {
   constructor() {
-    this.logColor = chalk.hex(randomColor())
+    this.logColor = chalk.hex(this.randomColor())
+  }
+
+  randomColor() {
+    return '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6)
   }
 
   log(...args) {
@@ -17,10 +21,13 @@ class Logger {
 }
 
 
+// Exponential distribution
 function expDistribution(rate) {
   return - (1/rate) * Math.log(Math.random())
 }
 
+// Use the exponential distribuition and multiply
+// by time factors so that we get the result in milliseconds
 function getEventTime() {
   const timeToNextEvent = 60 * 1000 * expDistribution(EVENTS_PER_MINUTE)
   return timeToNextEvent
@@ -33,6 +40,7 @@ async function autobid() {
   const id = bidId
   bidId++
   const logger = new Logger()
+
   while (true) {
     const timeToNextEvent = getEventTime()
     await sleep(timeToNextEvent)
@@ -48,10 +56,24 @@ async function main() {
     workers.push(autobid())
   }
 
+  // since the autobid function has a infinite loop it is effectively
+  // a promise that never resolves
   return Promise.all(workers)
 }
 
 main().then(console.log, console.error)
+
+
+
+function sleep(time) {
+  return new Promise(resolve => setTimeout(resolve, time))
+}
+
+// Fake http call
+function bid() {
+  return new Promise(resolve => setTimeout(resolve, Math.random() * 1000))
+}
+
 
 // uncoment to check 100 exp random values
 //function exampleEventTimes() {
@@ -61,17 +83,3 @@ main().then(console.log, console.error)
   //}
 //}
 //exampleEventTimes()
-
-
-function sleep(time) {
-  return new Promise(resolve => setTimeout(resolve, time))
-}
-
-function bid() {
-  return new Promise(resolve => setTimeout(resolve, Math.random() * 1000))
-}
-
-function randomColor() {
-  return '#'+(0x1000000+(Math.random())*0xffffff).toString(16).substr(1,6)
-}
-
